@@ -1,9 +1,28 @@
+import json # ¡Importante! Necesitamos importar el módulo json al principio del archivo.
+
+# --- Funciones para la Persistencia de Datos ---
+
+def cargar_inventario():
+    """Carga el inventario desde inventory.json. Si no existe, devuelve una lista vacía."""
+    try:
+        with open('inventory.json', 'r') as archivo:
+            return json.load(archivo)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Si el archivo no existe o está vacío/corrupto, empezamos con un inventario vacío
+        return []
+
+def guardar_inventario():
+    """Guarda el inventario actual en inventory.json."""
+    with open('inventory.json', 'w') as archivo:
+        json.dump(inventario, archivo, indent=4)
+
 # --- Base de Datos en Memoria ---
-inventario = [
-    { "id": 1, "nombre": "Laptop Pro", "precio": 1500.99, "stock": 15 },
-    { "id": 2, "nombre": "Mouse Inalámbrico", "precio": 25.50, "stock": 100 },
-    { "id": 3, "nombre": "Teclado Mecánico", "precio": 89.90, "stock": 50 }
-]
+# inventario = [
+#     { "id": 1, "nombre": "Laptop Pro", "precio": 1500.99, "stock": 15 },
+#     { "id": 2, "nombre": "Mouse Inalámbrico", "precio": 25.50, "stock": 100 },
+#     { "id": 3, "nombre": "Teclado Mecánico", "precio": 89.90, "stock": 50 }
+# ]
+inventario = cargar_inventario()
 
 # --- Funciones de la Aplicación ---
 
@@ -85,11 +104,17 @@ def menu_principal():
         elif opcion == '3':
             actualizar_stock()           
         elif opcion == '4':
-            print("¡Hasta luego!")
+            # 3. Guardamos el inventario en el archivo antes de cerrar
+            guardar_inventario()
+            print("Inventario guardado. ¡Hasta luego!")
             break
         else:
             print("Opción no válida. Por favor, intente de nuevo.")
 
 # --- Punto de Entrada de la Aplicación ---
 if __name__ == "__main__":
-    menu_principal()
+    # 1. Cargamos el inventario desde el archivo al iniciar
+    inventario = cargar_inventario() 
+    
+    # 2. Iniciamos el menú principal
+    menu_principal() 
