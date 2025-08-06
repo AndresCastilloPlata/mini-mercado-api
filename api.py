@@ -1,8 +1,21 @@
 # Archivo: api.py
 
 from fastapi import FastAPI, HTTPException
-import json # <--- 1. ASEGÚRATE DE AÑADIR ESTA LÍNEA
+from pydantic import BaseModel
+import json
 
+
+
+
+# --- Modelos de Datos (Pydantic) ---
+class Product(BaseModel):
+    """Define la estructura de un producto para la validación."""
+    # No incluimos el 'id' porque lo generaremos nosotros automáticamente.
+    name: str
+    price: float
+    stock: int
+    
+    
 # ... (La creación de la 'app' de FastAPI se queda igual)
 app = FastAPI(
     title="Mini-Mercado API", 
@@ -11,7 +24,6 @@ app = FastAPI(
 )
 
 # --- LÓGICA DE DATOS ---
-# 2. AÑADE ESTE BLOQUE DE CÓDIGO COMPLETO
 def cargar_inventario():
     """Carga el inventario desde inventory.json."""
     try:
@@ -20,6 +32,11 @@ def cargar_inventario():
     except (FileNotFoundError, json.JSONDecodeError):
         # Si el archivo no existe o está vacío/corrupto, devolvemos una lista vacía
         return []
+
+def guardar_inventario():
+    """Guarda el inventario actual en inventory.json."""
+    with open('inventory.json', 'w') as archivo:
+        json.dump(inventario, archivo, indent=4)
 
 # Cargamos los datos en una variable global al iniciar la aplicación
 inventario = cargar_inventario()
@@ -68,4 +85,24 @@ def get_product_by_id(product_id: int):
     raise HTTPException(status_code=404, detail=f"Producto con ID {product_id} no encontrado")
 
 
-  
+# --- ENDPOINT PARA CREAR UN PRODUCTO ---
+@app.post("/products", status_code=201)
+def create_product(new_product: Product):
+    """
+    Recibe los datos de un nuevo producto, lo valida y lo añade al inventario.
+    """
+    # Convertimos el modelo Pydantic a un diccionario de Python
+    product_data = new_product.model_dump()
+
+    # Generamos un nuevo ID (lógica que ya conoces)
+    new_id = inventario[-1]["id"] + 1 if inventario else 1
+    product_data["id"] = new_id
+
+    # Añadimos el nuevo producto (ya con su ID) a nuestra lista
+    inventario.append(product_data)
+    
+    # ¡Importante! Aquí deberíamos guardar el inventario en el archivo JSON
+    # para que el nuevo producto persista. Lo haremos en el ejercicio.
+    guardar_inventario()
+
+    return product_data
