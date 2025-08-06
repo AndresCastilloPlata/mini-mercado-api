@@ -1,20 +1,26 @@
 [
     {
         "id": 1,
-        "nombre": "Teclado Inalambrico",
-        "precio": 230000.0,
+        "name": "Teclado Inalambrico",
+        "price": 230000.0,
         "stock": 25
     },
     {
         "id": 2,
-        "nombre": "Mouse Inalambrico",
-        "precio": 90000.0,
+        "name": "Mouse Inalambrico",
+        "price": 90000.0,
         "stock": 15
     },
     {
         "id": 3,
-        "nombre": "Camara",
-        "precio": 100000.0,
-        "stock": 5
+        "name": "Camera LogyTech",
+        "price": 85000.0,
+        "stock": 6
+    },
+    {
+        "id": 4,
+        "name": "Monitor LG",
+        "price": 680000.0,
+        "stock": 3
     }
 ]

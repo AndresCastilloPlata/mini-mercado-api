@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 import json
 
 
@@ -14,7 +15,13 @@ class Product(BaseModel):
     name: str
     price: float
     stock: int
-    
+
+class ProductUpdate(BaseModel):
+    """Define la estructura para la actualización parcial de un producto."""
+    # Todos los campos son opcionales
+    name: Optional[str] = None
+    price: Optional[float] = None
+    stock: Optional[int] = None
     
 # ... (La creación de la 'app' de FastAPI se queda igual)
 app = FastAPI(
@@ -96,13 +103,97 @@ def create_product(new_product: Product):
 
     # Generamos un nuevo ID (lógica que ya conoces)
     new_id = inventario[-1]["id"] + 1 if inventario else 1
-    product_data["id"] = new_id
+    
+    
+    final_product={"id": new_id, **product_data}
 
     # Añadimos el nuevo producto (ya con su ID) a nuestra lista
-    inventario.append(product_data)
+    inventario.append(final_product)
     
     # ¡Importante! Aquí deberíamos guardar el inventario en el archivo JSON
     # para que el nuevo producto persista. Lo haremos en el ejercicio.
     guardar_inventario()
 
-    return product_data
+    return final_product
+
+
+# --- ENDPOINT PARA ACTUALIZAR UN PRODUCTO ---
+@app.put("/products/{product_id}")
+def update_product(product_id: int, updated_product: Product):
+    """
+    Busca un producto por su ID y actualiza sus datos con la información enviada.
+    """
+    producto_encontrado = None
+    # Buscamos el producto en el inventario
+    for producto in inventario:
+        if producto['id'] == product_id:
+            producto_encontrado = producto
+            break
+
+    # Si no lo encontramos, devolvemos un error 404
+    if not producto_encontrado:
+        raise HTTPException(status_code=404, detail=f"Producto con ID {product_id} no encontrado")
+
+    # Actualizamos los datos del producto encontrado
+    # Reutilizamos nuestro modelo Pydantic para la validación de los datos de entrada
+    product_data = updated_product.model_dump()
+    producto_encontrado['name'] = product_data['name']
+    producto_encontrado['price'] = product_data['price']
+    producto_encontrado['stock'] = product_data['stock']
+    
+    # Guardamos los cambios en el archivo
+    guardar_inventario()
+
+    # Devolvemos el producto actualizado
+    return producto_encontrado
+
+
+
+# --- ENDPOINT PARA ELIMINAR UN PRODUCTO ---
+@app.delete("/products/{product_id}")
+def delete_product(product_id: int):
+    """
+    Busca un producto por su ID y lo elimina del inventario.
+    """
+    producto_encontrado = None
+    # Buscamos el producto en el inventario
+    for producto in inventario:
+        if producto['id'] == product_id:
+            producto_encontrado = producto
+            break
+            
+    # Si no lo encontramos, devolvemos un error 404
+    if not producto_encontrado:
+        raise HTTPException(status_code=404, detail=f"Producto con ID {product_id} no encontrado")
+
+    # Usamos el método .remove() de las listas para eliminar el producto
+    inventario.remove(producto_encontrado)
+    
+    # Guardamos los cambios para que la eliminación sea permanente
+    guardar_inventario()
+
+    # Devolvemos un mensaje de confirmación
+    return {"mensaje": f"Producto con ID {product_id} eliminado con éxito"}
+
+
+# --- ENDPOINT PARA ACTUALIZACIÓN PARCIAL DE UN PRODUCTO ---
+@app.patch("/products/{product_id}")
+def partial_update_product(product_id: int, product_update: ProductUpdate):
+    producto_encontrado = None
+    for producto in inventario:
+        if producto['id'] == product_id:
+            producto_encontrado = producto
+            break
+
+    if not producto_encontrado:
+        raise HTTPException(status_code=404, detail=f"Producto con ID {product_id} no encontrado")
+
+    # Obtenemos solo los datos que el usuario realmente envió
+    update_data = product_update.model_dump(exclude_unset=True)
+
+    # Actualizamos solo los campos presentes en la petición
+    for key, value in update_data.items():
+        producto_encontrado[key] = value
+
+    guardar_inventario()
+    return producto_encontrado
