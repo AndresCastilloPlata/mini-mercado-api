@@ -153,7 +153,7 @@ def delete_product(product_id: int,
     db.commit()
     
     # 4. Devolvemos un mensaje de éxito.
-    return {"mensaje": "Producto eliminado con éxito"}
+    return {"mensaje": f"Producto con ID {product_id} eliminado con éxito"}
 
 
 
