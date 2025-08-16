@@ -46,7 +46,7 @@ Sigue estos pasos para levantar el proyecto en tu entorno local.
 
 1.  **Clona el repositorio:**
     ```bash
-    git clone [https://github.com/AndresCastilloPlata/mini-mercado-api](https://github.com/TU_USUARIO_DE_GITHUB/mini-mercado-api.git)
+    git clone [https://github.com/AndresCastilloPlata/mini-mercado-api](https://github.com/AndresCastilloPlata/mini-mercado-api.git)
     cd mini-mercado-api
     ```
 
