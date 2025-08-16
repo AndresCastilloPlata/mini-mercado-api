@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 # Esquema base con los campos comunes
 class ProductBase(BaseModel):
@@ -14,9 +14,7 @@ class ProductCreate(ProductBase):
 class Product(ProductBase):
     id: int
 
-    class Config:
-        # Permite que Pydantic lea datos desde modelos de SQLAlchemy
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
         
 
 # --- Esquemas para Usuarios ---
@@ -29,5 +27,4 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
