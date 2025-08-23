@@ -7,9 +7,12 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from . import security
 from jose import JWTError, jwt
 
-# Importamos desde nuestros nuevos módulos
 from . import models, schemas
 from .database import SessionLocal, engine
+
+from .worker import send_welcome_email
+
+from . import redis_client
 
 # Crea las tablas en la base de datos (solo si no existen)
 models.Base.metadata.create_all(bind=engine)
@@ -62,6 +65,9 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    send_welcome_email.delay(user.email)
+    
     return db_user
 
 @app.post("/token")
@@ -90,8 +96,27 @@ def get_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
 def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     
+    # PASO 1: Intentar buscar en el caché primero
+    cache_key = f"product:{product_id}"
+    cached_product = redis_client.get_from_cache(cache_key)
+    
+    if cached_product:
+        print("CACHE HIT!") # Para que veas la magia en la terminal
+        return cached_product
+    
+    
+    # PASO 2: Si no está en el caché (CACHE MISS), ir a la base de datos
+    print("CACHE MISS!")
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    
     if product is None:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    
+    # PASO 3: Antes de devolver, guardar en el caché para la próxima vez
+    # Convertimos el objeto SQLAlchemy a un diccionario primero
+    product_dict = schemas.Product.model_validate(product).model_dump()
+    redis_client.set_in_cache(cache_key, product_dict, expire=60) # Expira en 60 segundos
 
     # Si el producto existe, lo retornamos
     return product
