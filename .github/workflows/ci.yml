@@ -1,0 +1,37 @@
+# Nombre del flujo de trabajo que aparecerá en la pestaña "Actions" de GitHub
+name: CI Pipeline
+
+# Disparadores: cuándo se debe ejecutar este robot
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Trabajos: la lista de tareas que el robot debe realizar
+jobs:
+  build-and-test:
+    # La máquina que usará el robot (una máquina virtual limpia con Ubuntu)
+    runs-on: ubuntu-latest
+
+    # Los pasos que ejecutará en orden
+    steps:
+      # 1. Clona tu repositorio para tener acceso al código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configura el entorno de Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3. Instala las dependencias del proyecto
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. ¡Ejecuta las pruebas!
+      - name: Run tests
+        run: pytest
