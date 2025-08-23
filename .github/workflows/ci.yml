@@ -14,6 +14,34 @@ jobs:
     # La máquina que usará el robot (una máquina virtual limpia con Ubuntu)
     runs-on: ubuntu-latest
 
+    # Le decimos a GitHub que inicie estos contenedores
+    # antes de ejecutar los pasos.
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: minimercado_db
+        ports:
+          - 5432:5432
+        # Opción para asegurar que la BD esté lista antes de continuar
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     # Los pasos que ejecutará en orden
     steps:
       # 1. Clona tu repositorio para tener acceso al código
@@ -33,5 +61,11 @@ jobs:
           pip install -r requirements.txt
 
       # 4. ¡Ejecuta las pruebas!
+      # ¡IMPORTANTE! Tenemos que decirle a las pruebas que se conecten
+      # a la base de datos que el robot acaba de crear.
       - name: Run tests
         run: pytest
+        env:
+          # Sobrescribimos la URL de la BD para que apunte al contenedor 'postgres'
+          # que creamos en la sección de 'services'
+          DATABASE_URL: postgresql://user:password@localhost/minimercado_db
