@@ -1,11 +1,12 @@
 # Archivo: app/redis_client.py
 import redis
 import json
+from .config import settings
 
 # Nos conectamos a Redis. 
 # Usamos db=1 para separar los datos del caché de los de Celery (que usan db=0 por defecto).
 # decode_responses=True para que nos devuelva strings en lugar de bytes.
-redis_client = redis.Redis(host='localhost', port=6379, db=1, decode_responses=True)
+redis_client = redis.Redis(settings.DATABASE_URL, db=1, decode_responses=True)
 
 def get_from_cache(key: str):
     """Obtiene un valor del caché."""

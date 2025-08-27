@@ -1,11 +1,12 @@
 from celery import Celery
 import time
+from .config import settings
 
 # Configura Celery para usar Redis como "tablón de anuncios" (broker)
 celery_app = Celery(
     'tasks',
-    broker='redis://localhost:6379/0',
-    backend='redis://localhost:6379/0'
+    broker=settings.REDIS_URL,
+    backend=settings.REDIS_URL
 )
 
 @celery_app.task
