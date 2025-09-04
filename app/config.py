@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    # Esta línea le dice a Pydantic que lea las variables de un archivo .env
-    model_config = SettingsConfigDict(env_file=".env")
+    # Esta línea le dice a Pydantic que lea las variables de entorno en produccion
+    model_config = SettingsConfigDict()
 
 # Creamos una única instancia que usaremos en toda la aplicación
 settings = Settings()
