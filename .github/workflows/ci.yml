@@ -69,3 +69,7 @@ jobs:
           # Sobrescribimos la URL de la BD para que apunte al contenedor 'postgres'
           # que creamos en la sección de 'services'
           DATABASE_URL: postgresql://user:password@localhost/minimercado_db
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: testsecretkey
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: 30

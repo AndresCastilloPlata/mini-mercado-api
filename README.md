@@ -91,3 +91,11 @@ Para verificar que todo funciona correctamente, ejecuta la suite de pruebas auto
 ```bash
 pytest
 ```
+
+## ☁️ Despliegue
+
+La API está desplegada en **Google Cloud Run** y está disponible públicamente en la siguiente URL:
+
+**[https://mini-mercado-api-1047555500556.us-central1.run.app/docs](https://mini-mercado-api-1047555500556.us-central1.run.app/docs)**
+
+La base de datos PostgreSQL está alojada en **Supabase** y el broker de Redis en **Upstash**, ambos en sus respectivos niveles gratuitos. El pipeline de CI/CD con **GitHub Actions** asegura la calidad del código en cada commit.
