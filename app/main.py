@@ -15,7 +15,7 @@ from .worker import send_welcome_email
 from . import redis_client
 
 # Crea las tablas en la base de datos (solo si no existen)
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Mini-Mercado API")
 
