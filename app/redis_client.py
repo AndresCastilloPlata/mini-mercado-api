@@ -6,7 +6,7 @@ import os
 
 # Esta es una forma más explícita y segura de conectarse a Redis en producción
 # Se asegura de forzar la conexión SSL (requerida por Upstash).
-redis_client = redis.from_url(settings.REDIS_URL, db=1, decode_responses=True, ssl_cert_reqs=None)
+redis_client = redis.from_url(settings.REDIS_URL, db=1, decode_responses=True)
 
 def get_from_cache(key: str):
     """Obtiene un valor del caché."""
